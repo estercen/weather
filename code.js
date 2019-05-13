@@ -26,8 +26,9 @@ $(document).on("mobileinit", function(){
 						success: function(data){
 							var wf = '';
 							$.each(data.weather, function(index,val){
-								wf +='<p><b>' + data.name + "</b><img scr="+ val.icon + ".png></p>"+
-								data.main.temp + '&deg;C ' + ' | ' + val.main + ", " +
+
+								wf +='<p><b>' + data.name + "</b><img src='icon/"+ val.icon + ".png'></p>"+
+								Math.round(data.main.temp) + '&deg;C ' + ' | ' + val.main + ", " +
 								val.description
 								
 								console.log(data);
@@ -80,21 +81,74 @@ $(document).on("mobileinit", function(){
 		            });
 		        }
 		    });
+		//});
 
-			//añadir ciudad en la lista de ciudades (hay que mirar cómo hacerlo)
+			//añadir ciudad en la lista de ciudades 
 
-					$('ul').on('click', 'li', function() {
-						$("ul").append( $("") );
-					});
+			$("#autocomplete").on('click', 'li', function() {
+				$.mobile.changePage("#busca", { transition: "slideup" });
+				let ciudad = "<li><a href='#'>" + $(this).text() + "</a></li>";
+				$("#listaciudades").append(ciudad);
+				$("#listaciudades").listview( "refresh" );
+				$.ajax({
+					url: "http://api.openweathermap.org/data/2.5/weather?appid=8d95980ea77ed071e770126d777bde48",
+					data: {
+						q: $(this).text()
+					}
+				})
+			
+				.then( function ( response ) {
+				console.log(response);
+				
+				});
 
-		});
+		//ver otra ciudad
+
+			$("#listaciudades").on('click', 'li', function() {
+				$.mobile.changePage("#main", { transition: "slideup" });
+				$.ajax({
+					url: "http://api.openweathermap.org/data/2.5/weather?appid=8d95980ea77ed071e770126d777bde48",
+					data: {
+						q: $(this).text(),
+						units: 'metric'
+
+					},
+					success: function(data){
+							var wf = '';
+							$.each(data.weather, function(index,val){
+
+								wf +='<p><b>' + data.name + "</b><img src='icon/"+ val.icon + ".png'></p>"+
+								Math.round(data.main.temp) + '&deg;C ' + ' | ' + val.main + ", " +
+								val.description
+								
+								console.log(data);
+	 						});
+	 						$("#showweather").html(wf);
+						}
+				})
+
+				var names = [];
+				//names[0] = prompt("");
+				localStorage.setItem("names", JSON.stringify(names));
+
+				var storedNames = JSON.parse(localStorage.getItem("names"));
+
+			});
+
+			});
 		
-	});
+		});
 
+	});
 });
 
 
 
+//https://www.htmlcinco.com/guardar-un-objeto-o-array-en-localstorage/
+
+
+// aqui en vez de console log va un append con .html que pinte el div
+//$("#busca").append( $("") );
 
 
 /*$.getJSON("https://reqres.in/api/users", function(resp){
